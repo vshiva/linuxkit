@@ -17,6 +17,7 @@ func pushUsage() {
 	fmt.Printf("  aws\n")
 	fmt.Printf("  azure\n")
 	fmt.Printf("  gcp\n")
+	fmt.Printf("  oci\n")
 	fmt.Printf("  openstack\n")
 	fmt.Printf("  packet\n")
 	fmt.Printf("  vcenter\n")
@@ -40,6 +41,8 @@ func push(args []string) {
 		pushAzure(args[1:])
 	case "gcp":
 		pushGcp(args[1:])
+	case "oci":
+		pushOci(args[1:])
 	case "openstack":
 		pushOpenstack(args[1:])
 	case "packet":

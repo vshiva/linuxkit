@@ -91,9 +91,23 @@ var outFuns = map[string]func(string, io.Reader, int) error{
 		if err != nil {
 			return fmt.Errorf("Error converting to initrd: %v", err)
 		}
-		err = outputLinuxKit("raw", filename, kernel, initrd, cmdline, size)
+		err = outputLinuxKit("raw", filename, kernel, initrd, cmdline, size, false)
 		if err != nil {
 			return fmt.Errorf("Error writing raw output: %v", err)
+		}
+		return nil
+	},
+	"oci": func(base string, image io.Reader, size int) error {
+		filename := base + ".omi"
+		log.Infof("  %s", filename)
+		kernel, initrd, cmdline, _, err := tarToInitrd(image)
+		if err != nil {
+			return fmt.Errorf("Error converting to initrd: %v", err)
+		}
+		// TODO: Handle ucode
+		err = outputLinuxKit("qcow2", filename, kernel, initrd, cmdline, size, true)
+		if err != nil {
+			return fmt.Errorf("Error writing qcow2 output: %v", err)
 		}
 		return nil
 	},
@@ -116,7 +130,7 @@ var outFuns = map[string]func(string, io.Reader, int) error{
 			return fmt.Errorf("Error converting to initrd: %v", err)
 		}
 		// TODO: Handle ucode
-		err = outputLinuxKit("qcow2", filename, kernel, initrd, cmdline, size)
+		err = outputLinuxKit("qcow2", filename, kernel, initrd, cmdline, size, false)
 		if err != nil {
 			return fmt.Errorf("Error writing qcow2 output: %v", err)
 		}

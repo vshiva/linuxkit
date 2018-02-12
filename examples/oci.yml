@@ -1,0 +1,42 @@
+kernel:
+  image: linuxkit/kernel:4.9.80
+  cmdline: "console=ttyS0"
+init:
+  - linuxkit/init:6061875ba11fd9c563fda6234b103ed9997ff782
+  - linuxkit/runc:52ecfdef1ae051e7fd5ac5f1d0b7dd859adff015
+  - linuxkit/containerd:13f62c61f0465fb07766d88b317cabb960261cbb
+  - linuxkit/ca-certificates:v0.2
+onboot:
+  - name: sysctl
+    image: linuxkit/sysctl:v0.2
+  - name: dhcpcd
+    image: wcr.io/oci/dhcpcd:a984ce080a9138452e9bbf3abcb26dd048562ac3
+    command: ["/sbin/dhcpcd", "-f", "/dhcpcd.conf", "-1"]
+  - name: metadata
+    image: linuxkit/metadata:0c52e5914f8f7791376421fb61ad5e4469ffabe3
+    command: ["/usr/bin/metadata", "oci"]
+services:
+  - name: getty
+    image: linuxkit/getty:v0.2
+    env:
+     - INSECURE=true
+  - name: rngd
+    image: linuxkit/rngd:v0.2
+  - name: sshd
+    image: linuxkit/sshd:v0.2
+    binds:
+     - /run/config/ssh/authorized_keys:/root/.ssh/authorized_keys
+  - name: nginx
+    image: nginx:alpine
+    capabilities:
+     - CAP_NET_BIND_SERVICE
+     - CAP_CHOWN
+     - CAP_SETUID
+     - CAP_SETGID
+     - CAP_DAC_OVERRIDE
+    binds:
+     - /etc/resolv.conf:/etc/resolv.conf
+trust:
+  org:
+    - linuxkit
+    - library

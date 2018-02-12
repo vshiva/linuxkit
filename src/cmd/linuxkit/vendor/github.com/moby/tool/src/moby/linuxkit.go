@@ -91,7 +91,7 @@ func writeKernelInitrd(filename string, kernel []byte, initrd []byte, cmdline st
 	return ioutil.WriteFile(filename+"-cmdline", []byte(cmdline), 0600)
 }
 
-func outputLinuxKit(format string, filename string, kernel []byte, initrd []byte, cmdline string, size int) error {
+func outputLinuxKit(format string, filename string, kernel []byte, initrd []byte, cmdline string, size int, uefi bool) error {
 	log.Debugf("output linuxkit generated img: %s %s size %d", format, filename, size)
 
 	tmp, err := ioutil.TempDir(filepath.Join(MobyDir, "tmp"), "moby")
@@ -135,6 +135,11 @@ func outputLinuxKit(format string, filename string, kernel []byte, initrd []byte
 		"-disk", fmt.Sprintf("%s,format=raw", tardisk),
 		"-kernel", imageFilename("mkimage"),
 	}
+
+	if uefi {
+		commandLine = append(commandLine, "-uefi")
+	}
+
 	log.Debugf("run %s: %v", linuxkit, commandLine)
 	cmd := exec.Command(linuxkit, commandLine...)
 	cmd.Stderr = os.Stderr
